@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-AQTxubY6afoct7yswlwGPMmRN0oVTcOjEsNe4KcxP4Y='; script-src 'sha256-Jhnzr1JPJTYHOZJGS7oJ5t+dLFlnUBult7IBHC0P740='; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>VOYAGER account</title>
+<style>
+:root{color-scheme:light dark;--bg:#0b1020;--card:#121a33;--fg:#e8ecf8;--muted:#a3adc8;--accent:#22d3ee;--ok:#34d399;--warn:#fbbf24;--btnfg:#04111f}
+@media (prefers-color-scheme: light){:root{--bg:#f4f6fb;--card:#fff;--fg:#141a2e;--muted:#56607a;--accent:#0e7490;--ok:#047857;--warn:#b45309;--btnfg:#ffffff}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
+main{max-width:520px;width:100%;background:var(--card);border-radius:16px;padding:28px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.brand{font-weight:800;letter-spacing:.14em;font-size:13px;color:var(--accent);margin:0 0 18px}
+h1{font-size:22px;margin:0 0 10px}p{margin:0 0 12px;color:var(--muted)}strong{color:var(--fg)}
+ol{color:var(--muted);padding-left:20px;margin:0 0 14px}li{margin:4px 0}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;background:var(--accent);color:var(--btnfg);cursor:pointer}
+button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.small{font-size:13px}[hidden]{display:none}
+</style>
+</head>
+<body>
+<main>
+<p class="brand">VOYAGER</p>
+<section id="confirmed" hidden>
+<h1 class="ok">Email confirmed ✓</h1>
+<p>Your VOYAGER account is ready. Go back to <strong>VOYAGER → Passwords → Sync</strong> and <strong>sign in</strong> with your email and account password.</p>
+<p class="small">You can close this tab.</p>
+</section>
+<section id="recovery" hidden>
+<h1>Reset your VOYAGER password</h1>
+<ol>
+<li>Click <strong>Copy link for VOYAGER</strong> below.</li>
+<li>In VOYAGER’s <em>Forgot password</em> screen, paste it into <strong>“Link or code from the email”</strong>.</li>
+<li>Enter your <strong>recovery key</strong> and a new password.</li>
+</ol>
+<p><button id="copy" type="button">Copy link for VOYAGER</button></p>
+<p id="copied" class="ok small" hidden>Copied. Paste it into VOYAGER now — it works once and expires soon.</p>
+<p class="small">This page sends nothing anywhere. Don’t share this link: together with your recovery key it can reset your password.</p>
+</section>
+<section id="error" hidden>
+<h1 class="warn">This link didn’t work</h1>
+<p id="errtext"></p>
+<p>Links work only once and expire. Request a new one in <strong>VOYAGER → Passwords → Sync</strong>.</p>
+</section>
+<section id="home" hidden>
+<h1>VOYAGER account</h1>
+<p>This page finishes email confirmations and password resets for the VOYAGER browser. Open the link from your VOYAGER email to continue.</p>
+</section>
+</main>
+<script>
+(function(){
+  var h = new URLSearchParams(location.hash.slice(1));
+  var q = new URLSearchParams(location.search);
+  var type = h.get("type") || q.get("type") || "";
+  var err = h.get("error_description") || q.get("error_description");
+  function show(id){ document.getElementById(id).hidden = false; }
+  if (err) { document.getElementById("errtext").textContent = err.replace(/\+/g, " "); show("error"); }
+  else if (type === "recovery" && h.get("refresh_token")) { show("recovery"); }
+  else if (type === "signup" || type === "email_change" || h.get("access_token")) { show("confirmed"); }
+  else { show("home"); }
+  var btn = document.getElementById("copy");
+  if (btn) btn.addEventListener("click", function(){
+    var done = function(){ document.getElementById("copied").hidden = false; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(location.href).then(done, function(){ prompt("Copy this address:", location.href); });
+    else prompt("Copy this address:", location.href);
+  });
+})();
+</script>
+</body>
+</html>
